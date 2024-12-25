@@ -31,18 +31,16 @@ services:
       - network
 		restart: on-failure
   db:
-    image: postgres:16.1
+    image: postgres:16.1-alpine
     container_name: postgresdb
+		ports:
+			- 5432:5432
     environment:
-      - POSTGRES_USER=ahargunyllib
-      - POSTGRES_PASSWORD=ahargunyllib
-      - POSTGRES_DB=ahargunyllib
-      - TZ=Asia/Jakarta
-      - PORT=5432
+      - POSTGRES_USER="${DB_USER}"
+      - POSTGRES_PASSWORD="${DB_PASSWORD}"
+      - POSTGRES_DB="${DB_NAME}"
     volumes:
-      - db-data:/var/lib/postgresql/data
-    networks:
-      - default
+      - postgres:/var/lib/postgresql/data
 		healthcheck:
       test: ["CMD-SHELL", "sh -c 'pg_isready -U ${DB_USER} -d ${DB_NAME}'"]
       start_interval: 5s
@@ -52,22 +50,19 @@ services:
 	redis:
     image: redis:7.2.5-alpine
     container_name: rediscache
-    environment:
-      - REDIS_PASSWORD=ahargunyllib
-      - REDIS_PORT=6379
-    networks:
-      - hology
+    ports:
+			- 6379:6379
+		volumes:
+			- redis:/data
     healthcheck:
-      test:  ["CMD", "redis-cli", "-a", "ahargunyllib", "--raw", "incr", "ping" ]
+      test:  ["CMD", "redis-cli", "--raw", "incr", "ping" ]
       start_interval: 5s
       interval: 15s
       timeout: 5s
       retries: 3
 
-networks:
-  network:
-    driver: bridge
-
 volumes:
-  db-data:
+  postgres:
     driver: local
+	redis:
+		driver: local

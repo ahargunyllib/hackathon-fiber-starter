@@ -1,0 +1,113 @@
+# https://taskfile.dev
+
+version: "3"
+
+vars:
+  DBML_FILE: "./docs/schema.dbml"
+  DSN: "{{.DB_CONNECTION}}://{{.DB_USER}}:{{.DB_PASSWORD}}@{{.DB_HOST}}:{{.DB_PORT}}/{{.DB_NAME}}?sslmode=disable"
+
+dotenv:
+  - "./config/.env"
+
+tasks:
+  default:
+    desc: "Getting started"
+    cmds:
+      - task: install
+
+  install:
+    desc: "Install dependencies"
+    cmds:
+      - go mod download
+      - go install github.com/go-task/task/v3/cmd/task@latest
+      - go install github.com/air-verse/air@latest
+      - go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+      - go install go.uber.org/mock/mockgen@latest
+      - go install gotest.tools/gotestsum@latest
+      - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+
+  service:up:
+    desc: "Start services"
+    cmd: docker-compose up -d
+
+  service:down:
+    desc: "Stop services"
+    cmd: docker-compose down --rmi all --volumes --remove-orphans
+
+  service:logs:
+    desc: "Show logs"
+    cmd: docker-compose logs -f
+
+  service:cache:clear:
+    desc: "Clear cache"
+    cmd: docker builder prune -f
+
+  db:docs:generate:
+    desc: "Generate DBML from direct DB connection"
+    cmd: dbdocs db2dbml postgres {{.DSN}} -o {{.DBML_FILE}}
+    requires:
+      vars:
+        - DBML_FILE
+        - DSN
+
+  db:docs:build:
+    desc: "Generate database documentation from DBML file"
+    cmd: dbdocs build {{.DBML_FILE}} --project=ahargunyllib/hackathon-fiber-starter
+    requires:
+      vars:
+        - DBML_FILE
+
+  migrate:create:
+    desc: "Create new database migration"
+    cmd: migrate create -ext sql -dir ./database/migrations -seq {{.CLI_ARGS}}
+    requires:
+      vars:
+        - CLI_ARGS
+
+  migrate:up:
+    desc: "Run database migrations"
+    cmd: migrate -path ./database/migrations -database {{.DSN}} -verbose up {{.CLI_ARGS}}
+    requires:
+      vars:
+        - DSN
+
+  migrate:down:
+    desc: "Rollback database migrations"
+    cmd: migrate -path ./database/migrations -database {{.DSN}} -verbose down {{.CLI_ARGS}}
+    requires:
+      vars:
+        - DSN
+
+  redis:cli:
+    desc: "Connect to redis using command line interface"
+    cmd: docker exec -it go-pos_redis redis-cli
+
+  dev:
+    desc: "Start development server"
+    cmds:
+      - air
+
+  lint:
+    desc: "Run linter"
+    cmd: golangci-lint run ./...
+
+  build:
+    desc: "Build binary"
+    cmd: go build -o ./bin/{{.APP_NAME}} ./cmd/app/main.go
+    requires:
+      vars:
+        - APP_NAME
+
+  start:
+    desc: "Start binary"
+    cmd: ./bin/{{.APP_NAME}}
+    requires:
+      vars:
+        - APP_NAME
+
+  test:
+    desc: "Run tests"
+    cmds:
+      - go test -v ./... -race -cover -timeout 30s -count 1 -coverprofile=coverage.out
+      - go tool cover -html=coverage.out -o coverage.html
+      - gotestsum --format testname

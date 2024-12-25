@@ -1,23 +1,22 @@
 package env
 
 import (
-	"os"
-	"time"
-
 	"github.com/ahargunyllib/hackathon-fiber-starter/pkg/log"
+	"github.com/spf13/viper"
 )
 
 type Env struct {
-	AppEnv            string        `mapstructure:"APP_ENV"`
-	AppPort           string        `mapstructure:"APP_PORT"`
-	ApiKey            string        `mapstructure:"API_KEY"`
-	DBHost            string        `mapstructure:"DB_HOST"`
-	DBPort            string        `mapstructure:"DB_PORT"`
-	DBUser            string        `mapstructure:"DB_USER"`
-	DBPass            string        `mapstructure:"DB_PASS"`
-	DBName            string        `mapstructure:"DB_NAME"`
-	JwtSecretKey   []byte        `mapstructure:"JWT_SECRET_KEY"`
-	JwtExpTime time.Duration `mapstructure:"JWT_EXP_TIME"`
+	AppEnv       string `mapstructure:"APP_ENV"`
+	AppPort      string `mapstructure:"APP_PORT"`
+	ApiKey       string `mapstructure:"API_KEY"`
+	DBConnection string `mapstructure:"DB_CONNECTION"`
+	DBHost       string `mapstructure:"DB_HOST"`
+	DBPort       string `mapstructure:"DB_PORT"`
+	DBUser       string `mapstructure:"DB_USER"`
+	DBPass       string `mapstructure:"DB_PASS"`
+	DBName       string `mapstructure:"DB_NAME"`
+	JwtSecretKey string `mapstructure:"JWT_SECRET_KEY"`
+	JwtExpTime   string `mapstructure:"JWT_EXP_TIME"`
 }
 
 var AppEnv *Env
@@ -25,20 +24,19 @@ var AppEnv *Env
 func GetEnv() {
 	env := &Env{}
 
-	env.AppPort = os.Getenv("APP_PORT")
-	env.AppEnv = os.Getenv("APP_ENV")
-	env.ApiKey = os.Getenv("API_KEY")
-	env.DBHost = os.Getenv("DB_HOST")
-	env.DBPort = os.Getenv("DB_PORT")
-	env.DBUser = os.Getenv("DB_USER")
-	env.DBPass = os.Getenv("DB_PASS")
-	env.DBName = os.Getenv("DB_NAME")
-	env.JwtSecretKey = []byte(os.Getenv("JWT_SECRET_KEY"))
-	dur, err := time.ParseDuration(os.Getenv("JWT_EXP_TIME"))
-	if err != nil {
-		log.Fatal(log.LogInfo{"error": err.Error()}, "Fail to parse JWT_EXP_TIME")
+	viper.SetConfigFile("./config/.env")
+
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatal(log.LogInfo{
+			"error": err.Error(),
+		}, "[ENV][getEnv] failed to read config file")
 	}
-	env.JwtExpTime = dur
+
+	if err := viper.Unmarshal(env); err != nil {
+		log.Fatal(log.LogInfo{
+			"error": err.Error(),
+		}, "[ENV][getEnv] failed to unmarshal to struct")
+	}
 
 	switch env.AppEnv {
 	case "development":

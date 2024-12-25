@@ -11,13 +11,13 @@ import (
 	"github.com/ahargunyllib/hackathon-fiber-starter/pkg/uuid"
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
-	"gorm.io/gorm"
+	"github.com/jmoiron/sqlx"
 )
 
 type HttpServer interface {
 	Start(part string)
 	MountMiddlewares()
-	MountRoutes(db *gorm.DB)
+	MountRoutes(db *sqlx.DB)
 	GetApp() *fiber.App
 }
 
@@ -62,19 +62,17 @@ func (s *httpServer) Start(port string) {
 }
 
 func (s *httpServer) MountMiddlewares() {
-	if env.AppEnv.AppEnv != "production" {
-		// swaggo
-	}
-
 	s.app.Use(middlewares.LoggerConfig())
 	s.app.Use(middlewares.Helmet())
 	s.app.Use(middlewares.Compress())
 	s.app.Use(middlewares.Cors())
-	s.app.Use(middlewares.ApiKey())
+	if env.AppEnv.AppEnv != "development" {
+		s.app.Use(middlewares.ApiKey())
+	}
 	s.app.Use(middlewares.RecoverConfig())
 }
 
-func (s *httpServer) MountRoutes(db *gorm.DB) {
+func (s *httpServer) MountRoutes(db *sqlx.DB) {
 	_ = bcrypt.Bcrypt
 	_ = timePkg.Time
 	_ = uuid.UUID
@@ -93,6 +91,6 @@ func (s *httpServer) MountRoutes(db *gorm.DB) {
 	})
 
 	s.app.Use(func(c *fiber.Ctx) error {
-		return response.SendResponse(c, fiber.StatusNotFound, "nyari apa?😏")
+		return c.SendFile("./web/not-found.html")
 	})
 }
