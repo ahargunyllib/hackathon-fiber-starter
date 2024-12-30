@@ -12,33 +12,18 @@ import (
 	idtranslations "github.com/go-playground/validator/v10/translations/id"
 )
 
-type Validator struct {
+type ValidatorInterface interface {
+	Validate(data interface{}) ValidationErrorsResponse
+}
+
+type ValidatorStruct struct {
 	validator  *validator.Validate
 	translator ut.Translator
 }
 
-type ValidationError struct {
-	Tag         string `json:"tag"`
-	Param       string `json:"param"`
-	Translation string `json:"translation"`
-}
+var Validator = getValidator()
 
-type ValidationErrorsResponse []map[string]ValidationError
-
-func (v ValidationErrorsResponse) Error() string {
-	j, err := json.Marshal(v)
-	if err != nil {
-		return ""
-	}
-
-	return string(j)
-}
-
-func (v ValidationErrorsResponse) Serialize() any {
-	return v
-}
-
-func NewValidator() Validator {
+func getValidator() ValidatorInterface {
 	idInstance := id.New()
 	uni := ut.New(idInstance, idInstance)
 
@@ -50,28 +35,17 @@ func NewValidator() Validator {
 		log.Error(log.LogInfo{
 			"error": err.Error(),
 		}, "[VALIDATOR][NewValidator] Failed to register default translations")
-		return Validator{}
+		return nil
 	}
 
-	return Validator{
+
+	return &ValidatorStruct{
 		validator:  val,
 		translator: translator,
 	}
 }
 
-func getJSONFieldName(field reflect.StructField) string {
-	checkTags := []string{"json", "query", "param"}
-	for _, tag := range checkTags {
-		jsonTag := field.Tag.Get(tag)
-		if jsonTag != "" {
-			return jsonTag
-		}
-	}
-
-	return field.Name
-}
-
-func (v Validator) Validate(data interface{}) ValidationErrorsResponse {
+func (v *ValidatorStruct) Validate(data interface{}) ValidationErrorsResponse {
 	err := v.validator.Struct(data)
 	if err != nil {
 		var valErrs validator.ValidationErrors
@@ -106,4 +80,37 @@ func (v Validator) Validate(data interface{}) ValidationErrorsResponse {
 	}
 
 	return nil
+}
+
+type ValidationError struct {
+	Tag         string `json:"tag"`
+	Param       string `json:"param"`
+	Translation string `json:"translation"`
+}
+
+type ValidationErrorsResponse []map[string]ValidationError
+
+func (v ValidationErrorsResponse) Error() string {
+	j, err := json.Marshal(v)
+	if err != nil {
+		return ""
+	}
+
+	return string(j)
+}
+
+func (v ValidationErrorsResponse) Serialize() any {
+	return v
+}
+
+func getJSONFieldName(field reflect.StructField) string {
+	checkTags := []string{"json", "query", "param"}
+	for _, tag := range checkTags {
+		jsonTag := field.Tag.Get(tag)
+		if jsonTag != "" {
+			return jsonTag
+		}
+	}
+
+	return field.Name
 }
