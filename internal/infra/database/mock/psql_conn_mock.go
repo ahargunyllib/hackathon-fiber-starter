@@ -1,4 +1,4 @@
-package psql_conn_mock
+package mock
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func NewMockDB(t *testing.T)(*sqlx.DB, func() error, sqlmock.Sqlmock){
+func NewMockDB(t *testing.T) (*sqlx.DB, func() error, sqlmock.Sqlmock) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	// pgx driver for postgres
 	_ "github.com/jackc/pgx/v5/stdlib"
 
 	"github.com/ahargunyllib/hackathon-fiber-starter/internal/infra/env"
@@ -12,14 +13,20 @@ import (
 )
 
 func NewPgsqlConn() *sqlx.DB {
-	dataSourceName := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable ", env.AppEnv.DBHost, env.AppEnv.DBPort, env.AppEnv.DBUser, env.AppEnv.DBPass, env.AppEnv.DBName)
+	dataSourceName := fmt.Sprintf(
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable ",
+		env.AppEnv.DBHost,
+		env.AppEnv.DBPort,
+		env.AppEnv.DBUser,
+		env.AppEnv.DBPass,
+		env.AppEnv.DBName,
+	)
 
 	db, err := sqlx.Connect("pgx", dataSourceName)
 	if err != nil {
 		log.Panic(log.LogInfo{
 			"error": err.Error(),
 		}, "[DB][NewPgsqlConn] failed to connect to database")
-		panic(err)
 	}
 
 	db.SetMaxOpenConns(100)
