@@ -108,11 +108,32 @@ tasks:
   test:
     desc: "Run tests"
     cmds:
-      - go test -v ./internal/app/... -race -cover -timeout 30s -count 1 -coverprofile=coverage.out
+      - go test -v ./tests/... -race -cover -timeout 30s -count 1 -coverprofile=coverage.out
       - go tool cover -html=coverage.out -o coverage.html
       - gotestsum --format testname
 
-  gen-mock:
-    desc: "Generate mock. Run task with CLI_ARGS=domain"
+  test:unit:
+    desc: "Run unit tests"
     cmds:
-      - mockgen -source="domain/contracts/{{.CLI_ARGS}}_contracts.go" -destination="internal/app/{{.CLI_ARGS}}/repository/mock/{{.CLI_ARGS}}_repository_mock.go" -package=repository_mock
+    - go test -v ./tests/unit/... -race -cover -timeout 30s -count 1
+
+  test:specific:
+    desc: "Run specific tests. Run task with CLI_ARGS=entity or CLI_ARGS=entity/{repository|service}"
+    cmd: go test -v ./tests/unit/{{.CLI_ARGS}}/... -race -cover -timeout 30s -count 1
+    requires:
+      vars:
+        - CLI_ARGS
+
+  gen-mock:repository:
+    desc: "Generate repo mock. Run task with CLI_ARGS=entity"
+    cmd: mockgen -source="domain/contracts/{{.CLI_ARGS}}_contracts.go" -destination="tests/unit/{{.CLI_ARGS}}/repository/mock/{{.CLI_ARGS}}_repository_mock.go" -package=repository_mock
+    requires:
+      vars:
+        - CLI_ARGS
+
+  gen-mock:pkg:
+    desc: "Generate pkg mock. Run task with CLI_ARGS=pkg"
+    cmd: mockgen -source="pkg/{{.CLI_ARGS}}/{{.CLI_ARGS}}.go" -destination="pkg/{{.CLI_ARGS}}/mock/{{.CLI_ARGS}}_mock.go" -package=mock
+    requires:
+      vars:
+        - CLI_ARGS

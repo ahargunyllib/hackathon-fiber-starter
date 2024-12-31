@@ -1,6 +1,9 @@
 package server
 
 import (
+	userCtr "github.com/ahargunyllib/hackathon-fiber-starter/internal/app/user/controller"
+	userRepo "github.com/ahargunyllib/hackathon-fiber-starter/internal/app/user/repository"
+	userSvc "github.com/ahargunyllib/hackathon-fiber-starter/internal/app/user/service"
 	"github.com/ahargunyllib/hackathon-fiber-starter/internal/infra/env"
 	"github.com/ahargunyllib/hackathon-fiber-starter/internal/middlewares"
 	"github.com/ahargunyllib/hackathon-fiber-starter/pkg/bcrypt"
@@ -9,6 +12,7 @@ import (
 	"github.com/ahargunyllib/hackathon-fiber-starter/pkg/log"
 	timePkg "github.com/ahargunyllib/hackathon-fiber-starter/pkg/time"
 	"github.com/ahargunyllib/hackathon-fiber-starter/pkg/uuid"
+	"github.com/ahargunyllib/hackathon-fiber-starter/pkg/validator"
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jmoiron/sqlx"
@@ -76,6 +80,7 @@ func (s *httpServer) MountRoutes(db *sqlx.DB) {
 	_ = bcrypt.Bcrypt
 	_ = timePkg.Time
 	_ = uuid.UUID
+	validator := validator.Validator
 
 	_ = middlewares.NewMiddleware()
 
@@ -89,6 +94,12 @@ func (s *httpServer) MountRoutes(db *sqlx.DB) {
 	v1.Get("/", func(c *fiber.Ctx) error {
 		return response.SendResponse(c, fiber.StatusOK, "hai manies😘")
 	})
+
+	userRepository := userRepo.NewUserRepository(db)
+
+	userService := userSvc.NewUserService(userRepository, validator)
+
+	userCtr.InitNewController(v1, userService)
 
 	s.app.Use(func(c *fiber.Ctx) error {
 		return c.SendFile("./web/not-found.html")
