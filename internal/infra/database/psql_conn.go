@@ -12,10 +12,9 @@ import (
 )
 
 func NewPgsqlConn() *sqlx.DB {
-	driverName := env.AppEnv.DBConnection
 	dataSourceName := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable ", env.AppEnv.DBHost, env.AppEnv.DBPort, env.AppEnv.DBUser, env.AppEnv.DBPass, env.AppEnv.DBName)
 
-	db, err := sqlx.Connect(driverName, dataSourceName)
+	db, err := sqlx.Connect("pgx", dataSourceName)
 	if err != nil {
 		log.Panic(log.LogInfo{
 			"error": err.Error(),
