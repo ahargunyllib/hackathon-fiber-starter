@@ -85,6 +85,7 @@ func Error(fields LogInfo, msg string) {
 	for key, value := range convFields {
 		event = event.Interface(key, value)
 	}
+	event.Msg(msg)
 }
 
 func Fatal(fields LogInfo, msg string) {
