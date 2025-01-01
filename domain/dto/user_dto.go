@@ -9,12 +9,12 @@ type GetUsersRequest struct {
 }
 
 type GetUsersQuery struct {
-	Limit          int    `json:"limit,omitempty" validate:"gte=1,lte=100"`
-	Page           int    `json:"page,omitempty" validate:"gte=1"`
-	SortBy         string `json:"sort_by,omitempty" validate:"oneof=created_at updated_at name email id"`
-	Order          string `json:"order,omitempty" validate:"oneof=asc desc"`
-	IncludeDeleted bool   `json:"include_deleted"`
-	Search         string `json:"search"`
+	Limit          int    `query:"limit,omitempty" validate:"gte=1,lte=100"`
+	Page           int    `query:"page,omitempty" validate:"gte=1"`
+	SortBy         string `query:"sort_by,omitempty" validate:"oneof=created_at updated_at name email id"`
+	Order          string `query:"order,omitempty" validate:"oneof=asc desc"`
+	IncludeDeleted bool   `query:"include_deleted"`
+	Search         string `query:"search"`
 }
 
 func NewGetUsersQuery() GetUsersQuery {
