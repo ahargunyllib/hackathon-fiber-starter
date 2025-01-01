@@ -6,6 +6,7 @@ import (
 	"github.com/ahargunyllib/hackathon-fiber-starter/domain/contracts"
 	"github.com/ahargunyllib/hackathon-fiber-starter/domain/dto"
 	"github.com/ahargunyllib/hackathon-fiber-starter/domain/entity"
+	"github.com/ahargunyllib/hackathon-fiber-starter/pkg/log"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
@@ -88,7 +89,8 @@ func (r *userRepository) GetUserByField(ctx context.Context, field, value string
 	var user entity.User
 	var statement string
 
-	statement = `SELECT * FROM users WHERE ` + field + ` = ? AND deleted_at IS NULL`
+	statement = `SELECT * FROM users WHERE ` + field + ` = $1 AND deleted_at IS NULL`
+
 	err := r.conn.GetContext(ctx, &user, statement, value)
 	if err != nil {
 		return nil, err
@@ -116,7 +118,7 @@ func (r *userRepository) UpdateUser(ctx context.Context, user *entity.User) (uui
 }
 
 func (r *userRepository) SoftDeleteUser(ctx context.Context, id uuid.UUID) (uuid.UUID, error) {
-	_, err := r.conn.ExecContext(ctx, `UPDATE users SET deleted_at = NOW() WHERE id = ?`, id)
+	_, err := r.conn.ExecContext(ctx, `UPDATE users SET deleted_at = NOW() WHERE id = $1`, id)
 	if err != nil {
 		return uuid.Nil, err
 	}
@@ -125,7 +127,7 @@ func (r *userRepository) SoftDeleteUser(ctx context.Context, id uuid.UUID) (uuid
 }
 
 func (r *userRepository) DeleteUser(ctx context.Context, id uuid.UUID) (uuid.UUID, error) {
-	_, err := r.conn.ExecContext(ctx, `DELETE FROM users WHERE id = ?`, id)
+	_, err := r.conn.ExecContext(ctx, `DELETE FROM users WHERE id = $1`, id)
 	if err != nil {
 		return uuid.Nil, err
 	}
@@ -134,7 +136,7 @@ func (r *userRepository) DeleteUser(ctx context.Context, id uuid.UUID) (uuid.UUI
 }
 
 func (r *userRepository) RestoreUser(ctx context.Context, id uuid.UUID) (uuid.UUID, error) {
-	_, err := r.conn.ExecContext(ctx, `UPDATE users SET deleted_at = NULL WHERE id = ?`, id)
+	_, err := r.conn.ExecContext(ctx, `UPDATE users SET deleted_at = NULL WHERE id = $1`, id)
 	if err != nil {
 		return uuid.Nil, err
 	}
