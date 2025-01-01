@@ -36,7 +36,7 @@ tasks:
 
   service:down:
     desc: "Stop services"
-    cmd: docker-compose down --rmi all --volumes --remove-orphans
+    cmd: docker-compose down
 
   service:logs:
     desc: "Show logs"
