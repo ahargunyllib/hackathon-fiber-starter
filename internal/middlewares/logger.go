@@ -15,7 +15,6 @@ func LoggerConfig() fiber.Handler {
 			"referer",
 			"ip",
 			"host",
-			"path",
 			"url",
 			"ua",
 			"latency",
