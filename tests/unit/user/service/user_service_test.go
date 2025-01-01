@@ -9,6 +9,7 @@ import (
 	"github.com/ahargunyllib/hackathon-fiber-starter/domain/dto"
 	"github.com/ahargunyllib/hackathon-fiber-starter/domain/entity"
 	userSvc "github.com/ahargunyllib/hackathon-fiber-starter/internal/app/user/service"
+	uuidMock "github.com/ahargunyllib/hackathon-fiber-starter/pkg/uuid/mock"
 	validatorMock "github.com/ahargunyllib/hackathon-fiber-starter/pkg/validator/mock"
 	"github.com/ahargunyllib/hackathon-fiber-starter/tests/unit/user/fixture"
 	userRepoMock "github.com/ahargunyllib/hackathon-fiber-starter/tests/unit/user/repository/mock"
@@ -19,6 +20,7 @@ import (
 type mockObjects struct {
 	userRepo  *userRepoMock.MockUserRepository
 	validator *validatorMock.MockValidatorInterface
+	uuid      *uuidMock.MockUUIDInterface
 }
 
 func TestGetUsers(t *testing.T) {
@@ -27,10 +29,12 @@ func TestGetUsers(t *testing.T) {
 
 	userRepo := userRepoMock.NewMockUserRepository(ctrl)
 	validator := validatorMock.NewMockValidatorInterface(ctrl)
+	uuid := uuidMock.NewMockUUIDInterface(ctrl)
 
 	mockObjs := mockObjects{
 		userRepo:  userRepo,
 		validator: validator,
+		uuid:      uuid,
 	}
 
 	type params struct {
@@ -71,7 +75,7 @@ func TestGetUsers(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			userService := userSvc.NewUserService(mockObjs.userRepo, mockObjs.validator)
+			userService := userSvc.NewUserService(mockObjs.userRepo, mockObjs.validator, mockObjs.uuid)
 
 			if test.beforeTests != nil {
 				test.beforeTests(test.params, mockObjs)
@@ -97,10 +101,12 @@ func TestGetUserByID(t *testing.T) {
 
 	userRepo := userRepoMock.NewMockUserRepository(ctrl)
 	validator := validatorMock.NewMockValidatorInterface(ctrl)
+	uuid := uuidMock.NewMockUUIDInterface(ctrl)
 
 	mockObjs := mockObjects{
 		userRepo:  userRepo,
 		validator: validator,
+		uuid:      uuid,
 	}
 
 	type params struct {
@@ -151,7 +157,7 @@ func TestGetUserByID(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			userService := userSvc.NewUserService(mockObjs.userRepo, mockObjs.validator)
+			userService := userSvc.NewUserService(mockObjs.userRepo, mockObjs.validator, mockObjs.uuid)
 
 			if test.beforeTests != nil {
 				test.beforeTests(test.params, mockObjs)
@@ -176,10 +182,12 @@ func TestGetUsersStats(t *testing.T) {
 
 	userRepo := userRepoMock.NewMockUserRepository(ctrl)
 	validator := validatorMock.NewMockValidatorInterface(ctrl)
+	uuid := uuidMock.NewMockUUIDInterface(ctrl)
 
 	mockObjs := mockObjects{
 		userRepo:  userRepo,
 		validator: validator,
+		uuid:      uuid,
 	}
 
 	type params struct {
@@ -213,7 +221,7 @@ func TestGetUsersStats(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			userService := userSvc.NewUserService(mockObjs.userRepo, mockObjs.validator)
+			userService := userSvc.NewUserService(mockObjs.userRepo, mockObjs.validator, uuid)
 
 			if test.beforeTests != nil {
 				test.beforeTests(test.params, mockObjs)
@@ -238,10 +246,12 @@ func TestCreateUser(t *testing.T) {
 
 	userRepo := userRepoMock.NewMockUserRepository(ctrl)
 	validator := validatorMock.NewMockValidatorInterface(ctrl)
+	uuid := uuidMock.NewMockUUIDInterface(ctrl)
 
 	mockObjs := mockObjects{
 		userRepo:  userRepo,
 		validator: validator,
+		uuid:      uuid,
 	}
 
 	type params struct {
@@ -268,6 +278,7 @@ func TestCreateUser(t *testing.T) {
 			},
 			beforeTests: func(params params, mockObjects mockObjects) {
 				mockObjects.validator.EXPECT().Validate(params.req).Return(nil)
+				mockObjects.uuid.EXPECT().NewV7().Return(fixture.ActiveUser1.ID, nil)
 				mockObjects.userRepo.EXPECT().GetUserByField(params.ctx, "email", params.req.Email).Return(nil, sql.ErrNoRows)
 				mockObjects.userRepo.EXPECT().CreateUser(params.ctx, gomock.Any()).Return(fixture.ActiveUser1.ID, nil)
 			},
@@ -287,7 +298,8 @@ func TestCreateUser(t *testing.T) {
 			},
 			beforeTests: func(params params, mockObjects mockObjects) {
 				mockObjects.validator.EXPECT().Validate(params.req).Return(nil)
-				mockObjects.userRepo.EXPECT().GetUserByField(params.ctx, "email", params.req.Email).Return(nil, nil)
+				mockObjects.uuid.EXPECT().NewV7().Return(fixture.ActiveUser1.ID, nil)
+				mockObjects.userRepo.EXPECT().GetUserByField(params.ctx, "email", params.req.Email).Return(&fixture.ActiveUser1, nil)
 			},
 			want:    dto.CreateUserResponse{},
 			wantErr: domain.ErrUserEmailAlreadyExists,
@@ -296,7 +308,7 @@ func TestCreateUser(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			userService := userSvc.NewUserService(mockObjs.userRepo, mockObjs.validator)
+			userService := userSvc.NewUserService(mockObjs.userRepo, mockObjs.validator, mockObjs.uuid)
 
 			if test.beforeTests != nil {
 				test.beforeTests(test.params, mockObjs)
@@ -321,10 +333,12 @@ func TestUpdateUser(t *testing.T) {
 
 	userRepo := userRepoMock.NewMockUserRepository(ctrl)
 	validator := validatorMock.NewMockValidatorInterface(ctrl)
+	uuid := uuidMock.NewMockUUIDInterface(ctrl)
 
 	mockObjs := mockObjects{
 		userRepo:  userRepo,
 		validator: validator,
+		uuid:      uuid,
 	}
 
 	type params struct {
@@ -402,7 +416,7 @@ func TestUpdateUser(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			userService := userSvc.NewUserService(mockObjs.userRepo, mockObjs.validator)
+			userService := userSvc.NewUserService(mockObjs.userRepo, mockObjs.validator, mockObjs.uuid)
 
 			if test.beforeTests != nil {
 				test.beforeTests(test.params, mockObjs)
@@ -427,10 +441,12 @@ func TestSoftDeleteUser(t *testing.T) {
 
 	userRepo := userRepoMock.NewMockUserRepository(ctrl)
 	validator := validatorMock.NewMockValidatorInterface(ctrl)
+	uuid := uuidMock.NewMockUUIDInterface(ctrl)
 
 	mockObjs := mockObjects{
 		userRepo:  userRepo,
 		validator: validator,
+		uuid:      uuid,
 	}
 
 	type params struct {
@@ -481,7 +497,7 @@ func TestSoftDeleteUser(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			userService := userSvc.NewUserService(mockObjs.userRepo, mockObjs.validator)
+			userService := userSvc.NewUserService(mockObjs.userRepo, mockObjs.validator, mockObjs.uuid)
 
 			if test.beforeTests != nil {
 				test.beforeTests(test.params, mockObjs)
@@ -506,10 +522,12 @@ func TestDeleteUser(t *testing.T) {
 
 	userRepo := userRepoMock.NewMockUserRepository(ctrl)
 	validator := validatorMock.NewMockValidatorInterface(ctrl)
+	uuid := uuidMock.NewMockUUIDInterface(ctrl)
 
 	mockObjs := mockObjects{
 		userRepo:  userRepo,
 		validator: validator,
+		uuid:      uuid,
 	}
 
 	type params struct {
@@ -560,7 +578,7 @@ func TestDeleteUser(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			userService := userSvc.NewUserService(mockObjs.userRepo, mockObjs.validator)
+			userService := userSvc.NewUserService(mockObjs.userRepo, mockObjs.validator, mockObjs.uuid)
 
 			if test.beforeTests != nil {
 				test.beforeTests(test.params, mockObjs)
@@ -585,10 +603,12 @@ func TestRestoreUser(t *testing.T) {
 
 	userRepo := userRepoMock.NewMockUserRepository(ctrl)
 	validator := validatorMock.NewMockValidatorInterface(ctrl)
+	uuid := uuidMock.NewMockUUIDInterface(ctrl)
 
 	mockObjs := mockObjects{
 		userRepo:  userRepo,
 		validator: validator,
+		uuid:      uuid,
 	}
 
 	type params struct {
@@ -639,7 +659,7 @@ func TestRestoreUser(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			userService := userSvc.NewUserService(mockObjs.userRepo, mockObjs.validator)
+			userService := userSvc.NewUserService(mockObjs.userRepo, mockObjs.validator, mockObjs.uuid)
 
 			if test.beforeTests != nil {
 				test.beforeTests(test.params, mockObjs)
