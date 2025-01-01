@@ -6,7 +6,6 @@ import (
 	"github.com/ahargunyllib/hackathon-fiber-starter/domain/contracts"
 	"github.com/ahargunyllib/hackathon-fiber-starter/domain/dto"
 	"github.com/ahargunyllib/hackathon-fiber-starter/domain/entity"
-	"github.com/ahargunyllib/hackathon-fiber-starter/pkg/log"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
