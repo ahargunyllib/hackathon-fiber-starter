@@ -9,18 +9,21 @@ import (
 	"github.com/ahargunyllib/hackathon-fiber-starter/domain/contracts"
 	"github.com/ahargunyllib/hackathon-fiber-starter/domain/dto"
 	"github.com/ahargunyllib/hackathon-fiber-starter/domain/entity"
+	"github.com/ahargunyllib/hackathon-fiber-starter/pkg/uuid"
 	"github.com/ahargunyllib/hackathon-fiber-starter/pkg/validator"
 )
 
 type userService struct {
 	userRepo  contracts.UserRepository
 	validator validator.ValidatorInterface
+	uuid      uuid.UUIDInterface
 }
 
-func NewUserService(userRepo contracts.UserRepository, validator validator.ValidatorInterface) contracts.UserService {
+func NewUserService(userRepo contracts.UserRepository, validator validator.ValidatorInterface, uuid uuid.UUIDInterface) contracts.UserService {
 	return &userService{
 		userRepo:  userRepo,
 		validator: validator,
+		uuid:      uuid,
 	}
 }
 
@@ -131,13 +134,19 @@ func (s *userService) CreateUser(ctx context.Context, req dto.CreateUserRequest)
 		return dto.CreateUserResponse{}, valErr
 	}
 
+	uuid, err := s.uuid.NewV7()
+	if err != nil {
+		return dto.CreateUserResponse{}, err
+	}
+
 	user := &entity.User{
+		ID:       uuid,
 		Name:     req.Name,
 		Password: req.Password,
 		Email:    req.Email,
 	}
 
-	_, err := s.userRepo.GetUserByField(ctx, "email", user.Email)
+	_, err = s.userRepo.GetUserByField(ctx, "email", user.Email)
 	if err == nil { // successfully found a user with the same email
 		return dto.CreateUserResponse{}, domain.ErrUserEmailAlreadyExists
 	}
