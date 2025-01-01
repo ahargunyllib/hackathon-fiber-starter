@@ -79,7 +79,7 @@ func (s *httpServer) MountMiddlewares() {
 func (s *httpServer) MountRoutes(db *sqlx.DB) {
 	_ = bcrypt.Bcrypt
 	_ = timePkg.Time
-	_ = uuid.UUID
+	uuid := uuid.UUID
 	validator := validator.Validator
 
 	_ = middlewares.NewMiddleware()
@@ -97,7 +97,7 @@ func (s *httpServer) MountRoutes(db *sqlx.DB) {
 
 	userRepository := userRepo.NewUserRepository(db)
 
-	userService := userSvc.NewUserService(userRepository, validator)
+	userService := userSvc.NewUserService(userRepository, validator, uuid)
 
 	userCtr.InitNewController(v1, userService)
 
