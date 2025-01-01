@@ -9,23 +9,12 @@ type GetUsersRequest struct {
 }
 
 type GetUsersQuery struct {
-	Limit          int    `query:"limit,omitempty" validate:"gte=1,lte=100"`
-	Page           int    `query:"page,omitempty" validate:"gte=1"`
-	SortBy         string `query:"sort_by,omitempty" validate:"oneof=created_at updated_at name email id"`
-	Order          string `query:"order,omitempty" validate:"oneof=asc desc"`
+	Limit          int    `query:"limit" validate:"omitempty,number,gte=1,lte=100"`
+	Page           int    `query:"page" validate:"omitempty,number,gte=1"`
+	SortBy         string `query:"sort_by" validate:"omitempty,oneof=created_at updated_at name email id"`
+	Order          string `query:"order" validate:"omitempty,oneof=asc desc"`
 	IncludeDeleted bool   `query:"include_deleted"`
 	Search         string `query:"search"`
-}
-
-func NewGetUsersQuery() GetUsersQuery {
-	return GetUsersQuery{
-		Limit:          10,
-		Page:           1,
-		SortBy:         "created_at",
-		Order:          "desc",
-		IncludeDeleted: false,
-		Search:         "",
-	}
 }
 
 type GetUsersResponse struct {

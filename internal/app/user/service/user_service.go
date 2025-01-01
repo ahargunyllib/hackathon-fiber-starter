@@ -9,7 +9,6 @@ import (
 	"github.com/ahargunyllib/hackathon-fiber-starter/domain/contracts"
 	"github.com/ahargunyllib/hackathon-fiber-starter/domain/dto"
 	"github.com/ahargunyllib/hackathon-fiber-starter/domain/entity"
-	"github.com/ahargunyllib/hackathon-fiber-starter/pkg/log"
 	"github.com/ahargunyllib/hackathon-fiber-starter/pkg/validator"
 )
 
@@ -31,15 +30,26 @@ func (s *userService) GetUsers(ctx context.Context, query dto.GetUsersQuery) (dt
 		return dto.GetUsersResponse{}, valErr
 	}
 
+	if query.Limit == 0 {
+		query.Limit = 10
+	}
+
+	if query.Page == 0 {
+		query.Page = 1
+	}
+
+	if query.SortBy == "" {
+		query.SortBy = "created_at"
+	}
+
+	if query.Order == "" {
+		query.Order = "desc"
+	}
+
 	users, err := s.userRepo.GetUsers(ctx, query)
 	if err != nil {
 		return dto.GetUsersResponse{}, err
 	}
-
-	log.Info(log.LogInfo{
-		"message": "Successfully fetched users",
-		"users": users,
-	}, "Successfully fetched users")
 
 	return dto.GetUsersResponse{
 		Users: users,
@@ -109,9 +119,9 @@ func (s *userService) GetUsersStats(ctx context.Context) (dto.GetUsersStatsRespo
 	totalDeletedUsers := totalUsers - totalNonDeletedUsers
 
 	return dto.GetUsersStatsResponse{
-		TotalUsers: totalUsers,
+		TotalUsers:           totalUsers,
 		TotalNonDeletedUsers: totalNonDeletedUsers,
-		TotalDeletedUsers: totalDeletedUsers,
+		TotalDeletedUsers:    totalDeletedUsers,
 	}, nil
 }
 

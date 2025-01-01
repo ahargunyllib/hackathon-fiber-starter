@@ -28,7 +28,7 @@ func InitNewController(router fiber.Router, userService contracts.UserService) {
 }
 
 func (uc *userController) getUsers(ctx *fiber.Ctx) error {
-	query := dto.NewGetUsersQuery()
+	var query dto.GetUsersQuery
 	if err := ctx.QueryParser(&query); err != nil {
 		return err
 	}
