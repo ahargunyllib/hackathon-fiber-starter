@@ -13,6 +13,10 @@ type LogInfo map[string]interface{}
 
 var logger zerolog.Logger
 
+func GetLogger() *zerolog.Logger {
+	return &logger
+}
+
 func init() {
 	consoleWriter := zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.RFC3339}
 
