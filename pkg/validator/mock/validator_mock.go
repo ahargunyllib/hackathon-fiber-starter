@@ -41,10 +41,10 @@ func (m *MockValidatorInterface) EXPECT() *MockValidatorInterfaceMockRecorder {
 }
 
 // Validate mocks base method.
-func (m *MockValidatorInterface) Validate(data any) validator.ValidationErrorsResponse {
+func (m *MockValidatorInterface) Validate(data any) validator.ValidationErrors {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Validate", data)
-	ret0, _ := ret[0].(validator.ValidationErrorsResponse)
+	ret0, _ := ret[0].(validator.ValidationErrors)
 	return ret0
 }
 
