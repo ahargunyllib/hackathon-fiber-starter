@@ -2,7 +2,6 @@ package handler
 
 import (
 	"net/http"
-	"os"
 
 	"github.com/ahargunyllib/hackathon-fiber-starter/internal/infra/database"
 	"github.com/ahargunyllib/hackathon-fiber-starter/internal/infra/env"
@@ -23,13 +22,11 @@ func handler() http.HandlerFunc {
 	env.GetEnv()
 
 	server := server.NewHttpServer()
-	psqldb := database.NewPgsqlConn()
-
-	database.Migrate(psqldb, os.Args)
-	database.Seeder(psqldb, os.Args)
+	psqlDB := database.NewPgsqlConn()
+	defer psqlDB.Close()
 
 	server.MountMiddlewares()
-	server.MountRoutes(psqldb)
+	server.MountRoutes(psqlDB)
 
 	app := server.GetApp()
 

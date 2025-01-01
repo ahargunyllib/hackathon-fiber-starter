@@ -1,13 +1,33 @@
 package middlewares
 
 import (
+	"github.com/ahargunyllib/hackathon-fiber-starter/pkg/log"
+	"github.com/gofiber/contrib/fiberzerolog"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
 func LoggerConfig() fiber.Handler {
-	return logger.New(logger.Config{
-		Format:     "${time} ${method} ${status} ${path} in ${latency}\n",
-		TimeFormat: "15:04:05.00",
-	})
+	logger := log.GetLogger()
+	config := fiberzerolog.Config{
+		Logger:          logger,
+		FieldsSnakeCase: true,
+		Fields: []string{
+			"referer",
+			"ip",
+			"host",
+			"path",
+			"url",
+			"ua",
+			"latency",
+			"status",
+			"method",
+		},
+		Messages: []string{
+			"[LoggerMiddleware.LoggerConfig] Server error",
+			"[LoggerMiddleware.LoggerConfig] Client error",
+			"[LoggerMiddleware.LoggerConfig] Success",
+		},
+	}
+
+	return fiberzerolog.New(config)
 }

@@ -2,9 +2,11 @@ package helpers
 
 import (
 	"bufio"
+	"database/sql/driver"
 	"fmt"
 	"math/rand"
 	"os"
+	"reflect"
 
 	"github.com/ahargunyllib/hackathon-fiber-starter/domain"
 	"github.com/ahargunyllib/hackathon-fiber-starter/pkg/log"
@@ -72,4 +74,24 @@ func GenerateRandomString(lenght int) string {
 	}
 
 	return string(randomRune)
+}
+
+// Helper function to convert struct fields into a slice of interface{}
+func StructToSlice(i interface{}) []interface{} {
+	var result []interface{}
+	val := reflect.ValueOf(i)
+
+	for i := 0; i < val.NumField(); i++ {
+		result = append(result, val.Field(i).Interface())
+	}
+	return result
+}
+
+// Helper function to convert slice of interface{} into a slice of driver.Value
+func ConvertToDriverValue(values []interface{}) []driver.Value {
+	driverValues := make([]driver.Value, len(values))
+	for i, v := range values {
+		driverValues[i] = driver.Value(v)
+	}
+	return driverValues
 }

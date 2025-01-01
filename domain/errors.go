@@ -32,3 +32,13 @@ var ErrInvalidAPIKey = &RequestError{
 	StatusCode: http.StatusUnauthorized,
 	Err:        errors.New("invalid api key"),
 }
+
+var ErrUserNotFound = &RequestError{
+	StatusCode: http.StatusNotFound,
+	Err:        errors.New("user not found"),
+}
+
+var ErrUserEmailAlreadyExists = &RequestError{
+	StatusCode: http.StatusConflict,
+	Err:        errors.New("user email already exists"),
+}
