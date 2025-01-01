@@ -266,7 +266,7 @@ func TestGetUserByField(t *testing.T) {
 				expectedRows := sqlmock.NewRows(userFixture.Rows).
 					AddRows(helpers.ConvertToDriverValue(helpers.StructToSlice(userFixture.ActiveUser1)))
 
-				expectedSQL := `SELECT \* FROM users WHERE id = \? AND deleted_at IS NULL`
+				expectedSQL := `SELECT \* FROM users WHERE id = \$1 AND deleted_at IS NULL`
 
 				mock.ExpectQuery(expectedSQL).
 					WithArgs(params.value).
@@ -286,7 +286,7 @@ func TestGetUserByField(t *testing.T) {
 				expectedRows := sqlmock.NewRows(userFixture.Rows).
 					AddRows(helpers.ConvertToDriverValue(helpers.StructToSlice(userFixture.ActiveUser1)))
 
-				expectedSQL := `SELECT \* FROM users WHERE email = \? AND deleted_at IS NULL`
+				expectedSQL := `SELECT \* FROM users WHERE email = \$1 AND deleted_at IS NULL`
 
 				mock.ExpectQuery(expectedSQL).
 					WithArgs(params.value).
@@ -303,7 +303,7 @@ func TestGetUserByField(t *testing.T) {
 				value: uuid.New().String(),
 			},
 			beforeTests: func(params params, mock sqlmock.Sqlmock) {
-				expectedSQL := `SELECT \* FROM users WHERE id = \? AND deleted_at IS NULL`
+				expectedSQL := `SELECT \* FROM users WHERE id = \$1 AND deleted_at IS NULL`
 
 				mock.ExpectQuery(expectedSQL).
 					WithArgs(params.value).
@@ -320,7 +320,7 @@ func TestGetUserByField(t *testing.T) {
 				value: "invalid",
 			},
 			beforeTests: func(params params, mock sqlmock.Sqlmock) {
-				expectedSQL := `SELECT \* FROM users WHERE id = \? AND deleted_at IS NULL`
+				expectedSQL := `SELECT \* FROM users WHERE id = \$1 AND deleted_at IS NULL`
 
 				mock.ExpectQuery(expectedSQL).
 					WithArgs(params.value).
@@ -482,7 +482,7 @@ func TestSoftDeleteUser(t *testing.T) {
 				id:  userFixture.ActiveUser1.ID,
 			},
 			beforeTests: func(params params, mock sqlmock.Sqlmock) {
-				expectedSQL := `UPDATE users SET deleted_at = NOW\(\) WHERE id = ?`
+				expectedSQL := `UPDATE users SET deleted_at = NOW\(\) WHERE id = \$1`
 
 				mock.ExpectExec(expectedSQL).
 					WithArgs(params.id).
@@ -536,7 +536,7 @@ func TestDeleteUser(t *testing.T) {
 				id:  userFixture.ActiveUser1.ID,
 			},
 			beforeTests: func(params params, mock sqlmock.Sqlmock) {
-				expectedSQL := `DELETE FROM users WHERE id = ?`
+				expectedSQL := `DELETE FROM users WHERE id = \$1`
 
 				mock.ExpectExec(expectedSQL).
 					WithArgs(params.id).
@@ -590,7 +590,7 @@ func TestRestoreUser(t *testing.T) {
 				id:  userFixture.InactiveUser1.ID,
 			},
 			beforeTests: func(params params, mock sqlmock.Sqlmock) {
-				expectedSQL := `UPDATE users SET deleted_at = NULL WHERE id = ?`
+				expectedSQL := `UPDATE users SET deleted_at = NULL WHERE id = \$1`
 
 				mock.ExpectExec(expectedSQL).
 					WithArgs(params.id).
