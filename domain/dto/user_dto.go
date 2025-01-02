@@ -22,7 +22,7 @@ type GetUsersResponse struct {
 }
 
 type GetUserByIDRequest struct {
-	ID uuid.UUID `json:"id"`
+	ID uuid.UUID `param:"id" validate:"required,uuid"`
 }
 
 type GetUserByIDResponse struct {
