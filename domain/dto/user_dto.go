@@ -44,8 +44,8 @@ type GetUsersStatsResponse struct {
 }
 
 type CreateUserRequest struct {
-	Name     string `json:"name" validate:"required,min=3,max=100,alphaunicode"`
-	Password string `json:"password" validate:"required,min=8,max=100,alphanum"`
+	Name     string `json:"name" validate:"required,min=3,max=100,ascii"`
+	Password string `json:"password" validate:"required,min=8,max=100,ascii"`
 	Email    string `json:"email" validate:"required,email"`
 }
 
@@ -55,8 +55,8 @@ type CreateUserResponse struct {
 
 type UpdateUserRequest struct {
 	ID       uuid.UUID `param:"id" validate:"required,uuid"`
-	Name     string    `json:"name" validate:"required,min=3,max=100,alphaunicode"`
-	Password string    `json:"password" validate:"required,min=8,max=100,alphanum"`
+	Name     string    `json:"name" validate:"required,min=3,max=100,ascii"`
+	Password string    `json:"password" validate:"required,min=8,max=100,ascii"`
 	Email    string    `json:"email" validate:"required,email"`
 }
 
