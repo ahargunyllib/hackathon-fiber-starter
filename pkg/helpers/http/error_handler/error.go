@@ -10,17 +10,15 @@ import (
 )
 
 func ErrorHandler(c *fiber.Ctx, err error) error {
-	var e validator.ValidationErrors
-	if errors.As(err, &e) {
-		return response.SendResponse(c, fiber.StatusUnprocessableEntity, err)
+	var valErr validator.ValidationErrors
+	if errors.As(err, &valErr) {
+		return response.SendResponse(c, fiber.StatusUnprocessableEntity, valErr)
 	}
 
-	switch e := err.(type) {
-	case *domain.RequestError:
-		response.SendResponse(c, e.StatusCode, e.Error())
-	default:
-		response.SendResponse(c, fiber.StatusInternalServerError, err.Error())
+	var reqErr *domain.RequestError
+	if errors.As(err, &reqErr) {
+		return response.SendResponse(c, reqErr.StatusCode, reqErr)
 	}
 
-	return nil
+	return response.SendResponse(c, fiber.StatusInternalServerError, err)
 }
