@@ -42,3 +42,23 @@ var ErrUserEmailAlreadyExists = &RequestError{
 	StatusCode: http.StatusConflict,
 	Err:        errors.New("user email already exists"),
 }
+
+var ErrNoBearerToken = &RequestError{
+	StatusCode: http.StatusUnauthorized,
+	Err:        errors.New("no bearer token provided"),
+}
+
+var ErrInvalidBearerToken = &RequestError{
+	StatusCode: http.StatusUnauthorized,
+	Err:        errors.New("invalid bearer token"),
+}
+
+var ErrExpiredBearerToken = &RequestError{
+	StatusCode: http.StatusUnauthorized,
+	Err:        errors.New("expired bearer token"),
+}
+
+var ErrBearerTokenNotActive = &RequestError{
+	StatusCode: http.StatusUnauthorized,
+	Err:        errors.New("bearer token not active"),
+}
