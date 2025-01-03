@@ -10,6 +10,7 @@ require (
 	github.com/go-playground/validator/v10 v10.22.1
 	github.com/gofiber/contrib/fiberzerolog v1.0.2
 	github.com/gofiber/fiber/v2 v2.52.5
+	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/uuid v1.5.0
 	github.com/jackc/pgx/v5 v5.7.1
 	github.com/jmoiron/sqlx v1.4.0
