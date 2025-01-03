@@ -1,21 +1,23 @@
 package env
 
 import (
+	"time"
+
 	"github.com/ahargunyllib/hackathon-fiber-starter/pkg/log"
 	"github.com/spf13/viper"
 )
 
 type Env struct {
-	AppEnv       string `mapstructure:"APP_ENV"`
-	AppPort      string `mapstructure:"APP_PORT"`
-	ApiKey       string `mapstructure:"API_KEY"`
-	DBHost       string `mapstructure:"DB_HOST"`
-	DBPort       string `mapstructure:"DB_PORT"`
-	DBUser       string `mapstructure:"DB_USER"`
-	DBPass       string `mapstructure:"DB_PASS"`
-	DBName       string `mapstructure:"DB_NAME"`
-	JwtSecretKey string `mapstructure:"JWT_SECRET_KEY"`
-	JwtExpTime   string `mapstructure:"JWT_EXP_TIME"`
+	AppEnv       string        `mapstructure:"APP_ENV"`
+	AppPort      string        `mapstructure:"APP_PORT"`
+	ApiKey       string        `mapstructure:"API_KEY"`
+	DBHost       string        `mapstructure:"DB_HOST"`
+	DBPort       string        `mapstructure:"DB_PORT"`
+	DBUser       string        `mapstructure:"DB_USER"`
+	DBPass       string        `mapstructure:"DB_PASS"`
+	DBName       string        `mapstructure:"DB_NAME"`
+	JwtSecretKey string        `mapstructure:"JWT_SECRET_KEY"`
+	JwtExpTime   time.Duration `mapstructure:"JWT_EXP_TIME"`
 }
 
 var AppEnv *Env
